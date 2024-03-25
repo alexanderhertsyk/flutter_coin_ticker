@@ -1,7 +1,11 @@
+import 'package:coin_ticker/utils/service_dispatcher.dart';
 import 'package:flutter/material.dart';
 import 'price_screen.dart';
 
-void main() => runApp(const CoinTickerApp());
+void main() {
+  ServiceDispatcher.instance.init();
+  runApp(const CoinTickerApp());
+}
 
 class CoinTickerApp extends StatelessWidget {
   const CoinTickerApp({super.key});

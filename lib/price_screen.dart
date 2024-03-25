@@ -1,4 +1,7 @@
 import 'package:coin_ticker/coin_data.dart';
+import 'package:coin_ticker/services/coin_service.dart';
+import 'package:coin_ticker/services/network_service.dart';
+import 'package:coin_ticker/utils/service_dispatcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -11,12 +14,34 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
+  final ICoinService _coinService =
+      ServiceDispatcher.instance.getService<ICoinService>();
+  double _rate = 0.0;
   String? _currency = currenciesList.first;
+
+  void onCurrencyChanged(String currency) {
+    setCurrency(currency);
+    setRate(currency);
+  }
+
+  void setCurrency(String currency) => setState(() => _currency = currency);
+
+  void setRate(String currency) async {
+    // TODO: add loading indicator
+    var rateModel = await _coinService.getRate('BTC', currency);
+    setState(() {
+      if (rateModel.hasError) {
+        //TODO: show error
+        _rate = -1;
+      } else {
+        _rate = rateModel.rate;
+      }
+    });
+  }
 
   DropdownButton<String> _getAndroidPicker() => DropdownButton<String>(
         value: _currency,
-        onChanged: (selectedCurrency) =>
-            setState(() => _currency = selectedCurrency),
+        onChanged: (currency) => onCurrencyChanged(currency!),
         items: currenciesList
             .map<DropdownMenuItem<String>>((currency) =>
                 DropdownMenuItem(value: currency, child: Text(currency)))
@@ -26,8 +51,7 @@ class _PriceScreenState extends State<PriceScreen> {
   CupertinoPicker _getIOSPicker() => CupertinoPicker(
         backgroundColor: Colors.lightBlueAccent,
         itemExtent: 32,
-        onSelectedItemChanged: (i) =>
-            setState(() => _currency = currenciesList[i]),
+        onSelectedItemChanged: (i) => onCurrencyChanged(currenciesList[i]),
         children:
             currenciesList.map<Text>((currency) => Text(currency)).toList(),
       );
@@ -50,12 +74,15 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 15.0,
+                  horizontal: 28.0,
+                ),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = ${_rate.round()} $_currency',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                     color: Colors.white,
                   ),
