@@ -1,9 +1,12 @@
 import 'package:coin_ticker/models/rate_model.dart';
+import 'package:coin_ticker/models/rates_model.dart';
 import 'package:coin_ticker/services/network_service.dart';
 import 'package:coin_ticker/utils/service_dispatcher.dart';
 
 abstract interface class ICoinService implements IService {
-  Future<RateModel> getRate(String coinId, String currencyId);
+  Future<RateModel> getRate(String from, String to);
+  Future<RatesModel> getRates(
+      {required String from, required Iterable<String> to});
 }
 
 class CoinService implements ICoinService {
@@ -19,18 +22,29 @@ class CoinService implements ICoinService {
   factory CoinService() => _instance;
 
   @override
-  Future<RateModel> getRate(String coinId, String currencyId) async {
-    var uri = _networkService
-        .getUri('exchangerate/$coinId/$currencyId', {'apikey': _apiKey});
+  Future<RateModel> getRate(String from, String to) async {
+    var uri =
+        _networkService.getUri('exchangerate/$from/$to', {'apikey': _apiKey});
     var result = await _networkService.getParsedData<RateModel>(
         uri, (json) => RateModel.fromJson(json));
 
-    if (!result.succeed) {
-      return RateModel(
-        dateTime: DateTime.now(),
-        error: result.response?.error ?? result.error,
-      );
-    }
+    if (!result.succeed) return RateModel(error: result.error);
+
+    return result.response!;
+  }
+
+  @override
+  Future<RatesModel> getRates(
+      {required String from, required Iterable<String> to}) async {
+    var uri = _networkService.getUri('exchangerate/$from', {
+      'filter_asset_id': to.join(','),
+      'invert': true,
+      'apikey': _apiKey,
+    });
+    var result = await _networkService.getParsedData<RatesModel>(
+        uri, (json) => RatesModel.fromJson(json));
+
+    if (!result.succeed) return RatesModel(error: result.error);
 
     return result.response!;
   }

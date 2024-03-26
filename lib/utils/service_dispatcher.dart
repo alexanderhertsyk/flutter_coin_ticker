@@ -15,6 +15,7 @@ class ServiceDispatcher {
     _services.add(CoinService());
   }
 
+  // TODO: think out how to specify parameter for the same interface (mb inner generic?)
   TService getService<TService extends IService>() =>
       _services.whereType<TService>().first;
 }

@@ -1,28 +1,28 @@
 import 'base_model.dart';
 
 const kTime = 'time';
-const kCoin = 'asset_id_base';
-const kCurrency = 'asset_id_quote';
+const kFrom = 'asset_id_base';
+const kTo = 'asset_id_quote';
 const kRate = 'rate';
 
 final class RateModel extends BaseModel {
   final DateTime dateTime;
-  final String? coinId;
-  final String? currencyId;
+  final String? from;
+  final String? to;
   final double rate;
 
   RateModel({
-    required this.dateTime,
-    this.coinId,
-    this.currencyId,
+    DateTime? dateTime,
+    this.from,
+    this.to,
     this.rate = 0.0,
     super.error,
-  });
+  }) : dateTime = dateTime ?? DateTime.now();
 
   RateModel.fromJson(Map<String, dynamic> json)
       : dateTime = DateTime.parse(json[kTime]),
-        coinId = json[kCoin] as String?,
-        currencyId = json[kCurrency] as String?,
+        from = json[kFrom] as String?,
+        to = json[kTo] as String?,
         rate = json[kRate] as double;
 
   Map<String, dynamic> toJson() {
@@ -31,8 +31,8 @@ final class RateModel extends BaseModel {
       kRate: rate,
     };
     // TODO: check how encode serializes nullable items
-    if (coinId != null) rateJson[kCoin] = coinId;
-    if (currencyId != null) rateJson[kCurrency] = currencyId;
+    if (from != null) rateJson[kFrom] = from;
+    if (to != null) rateJson[kTo] = to;
 
     return rateJson;
   }

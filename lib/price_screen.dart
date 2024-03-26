@@ -1,7 +1,8 @@
 import 'package:coin_ticker/coin_data.dart';
+import 'package:coin_ticker/models/rates_model.dart';
 import 'package:coin_ticker/services/coin_service.dart';
-import 'package:coin_ticker/services/network_service.dart';
 import 'package:coin_ticker/utils/service_dispatcher.dart';
+import 'package:coin_ticker/widgets/coin_rate_label.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -16,7 +17,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
   final ICoinService _coinService =
       ServiceDispatcher.instance.getService<ICoinService>();
-  double _rate = 0.0;
+  RatesModel _rateModel = RatesModel.fake();
   String? _currency = currenciesList.first;
 
   void onCurrencyChanged(String currency) {
@@ -28,13 +29,12 @@ class _PriceScreenState extends State<PriceScreen> {
 
   void setRate(String currency) async {
     // TODO: add loading indicator
-    var rateModel = await _coinService.getRate('BTC', currency);
+    var rateModel = await _coinService.getRates(from: currency, to: cryptoList);
     setState(() {
       if (rateModel.hasError) {
-        //TODO: show error
-        _rate = -1;
+        _rateModel = RatesModel.fake();
       } else {
-        _rate = rateModel.rate;
+        _rateModel = rateModel;
       }
     });
   }
@@ -64,31 +64,23 @@ class _PriceScreenState extends State<PriceScreen> {
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 15.0,
-                  horizontal: 28.0,
-                ),
-                child: Text(
-                  '1 BTC = ${_rate.round()} $_currency',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CoinRateLabel(
+                  coin: _rateModel.rates[0].to,
+                  currency: _rateModel.from,
+                  rate: _rateModel.rates[0].rate),
+              CoinRateLabel(
+                  coin: _rateModel.rates[1].to,
+                  currency: _rateModel.from,
+                  rate: _rateModel.rates[1].rate),
+              CoinRateLabel(
+                  coin: _rateModel.rates[2].to,
+                  currency: _rateModel.from,
+                  rate: _rateModel.rates[2].rate),
+            ],
           ),
           Container(
             height: 150.0,
