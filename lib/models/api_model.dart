@@ -1,10 +1,9 @@
-//TODO: rename to Base & make it base OR abstract + apply generic!
 class ApiModel<TResponse> {
   final int code;
-  final dynamic response;
-  final String? errorMessage;
+  final TResponse? response;
+  final String? error;
 
   bool get succeed => code == 200;
 
-  ApiModel({required this.code, this.response, this.errorMessage});
+  ApiModel({required this.code, this.response, this.error});
 }

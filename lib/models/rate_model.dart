@@ -1,16 +1,11 @@
+import 'base_model.dart';
+
 const kTime = 'time';
 const kCoin = 'asset_id_base';
 const kCurrency = 'asset_id_quote';
 const kRate = 'rate';
 
-class BaseModel {
-  final String? errorMessage;
-  get hasError => errorMessage != null;
-
-  BaseModel({this.errorMessage});
-}
-
-class RateModel extends BaseModel {
+final class RateModel extends BaseModel {
   final DateTime dateTime;
   final String? coinId;
   final String? currencyId;
@@ -21,7 +16,7 @@ class RateModel extends BaseModel {
     this.coinId,
     this.currencyId,
     this.rate = 0.0,
-    super.errorMessage,
+    super.error,
   });
 
   RateModel.fromJson(Map<String, dynamic> json)

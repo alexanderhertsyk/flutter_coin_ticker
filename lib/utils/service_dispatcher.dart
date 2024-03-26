@@ -11,7 +11,7 @@ class ServiceDispatcher {
   ServiceDispatcher._internal();
 
   void init() {
-    _services.add(NetworkService(baseUrl: CoinService.baselUrl));
+    _services.add(ApiService(baseUrl: CoinService.baselUrl));
     _services.add(CoinService());
   }
 
